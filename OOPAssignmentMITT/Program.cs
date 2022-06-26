@@ -2,6 +2,7 @@
 // accept product price and amount tendered
 // calls a function return change to customer and returns a customer greeting message
 
+/*
 string useVendingMachine(int productCost, int amountTendered)
 {
     int customerChange = amountTendered - productCost;
@@ -60,34 +61,168 @@ Console.WriteLine(useVendingMachine(1, 50));
 
 
 
+*/
+
+
+
+Product coke = new Product("Coke", 2, 322);
+Product fanta = new Product("Fanta", 3, 333);
+
+List<int> myMoney = new List<int> { 1, 2 };
+
+CashDrawer vendingMachineFloat = new CashDrawer();
+vendingMachineFloat.addCash(10, 5);
+vendingMachineFloat.addCash(5, 5);
+vendingMachineFloat.addCash(2, 5);
+vendingMachineFloat.addCash(1, 5);
+
+VendingMachine myVendingMachine = new VendingMachine();
+myVendingMachine.CashDrawer = vendingMachineFloat;
+myVendingMachine.addProduct(fanta, 4);
+myVendingMachine.addProduct(coke, 3);
+myVendingMachine.PurchaseItem(322, myMoney);
+
+
+
+
 
 
 class VendingMachine
 {
-    public int serialNumber { get; set; } = 0;
-    public  ICollection<CashDrawer> cashDrawer { get; set; } 
+    public int SerialNumber { get; set; } = 1;
+    public  CashDrawer CashDrawer { get; set; } 
+    public Dictionary<Product, int> Inventory { get; set; } = new Dictionary<Product, int>();
+
+    public VendingMachine()
+    {
+        SerialNumber = SerialNumber++ ;
+        
+    }
+
+    public string addProduct(Product product, int number)
+    {
+        
+        if (Inventory.ContainsKey(product))
+        {
+            Inventory[product] = +number;
+        }
+        else
+        {
+            Inventory.Add(product, number);
+        }
+
+        return $"{number} {product}s successfully added";
+
+    }
+
+    public string addCash(int bill, int numOfBill)
+    {
+        int value;
+        bool KeyExits = CashDrawer.AvailableCash.TryGetValue(bill, out value);
+
+        if (KeyExits)
+        {
+            CashDrawer.AvailableCash[bill] = +numOfBill;
+        }
+        else
+        {
+            CashDrawer.AvailableCash.Add(bill, numOfBill);
+        }
+
+        return $" {numOfBill} {bill} dollar bills added to Cash drawer";
+
+
+    }
+
+    public string PurchaseItem(int code, List<int> money )
+    {
+        string machineMessage = "";
+        int tenderedAmount = 0;
+        int customerChange;
+
+        foreach (int bill in money)
+        {
+            tenderedAmount =+ bill;
+        }
+
+        foreach (KeyValuePair<Product, int> kvp in Inventory)
+        {
+            if (kvp.Key.Code != code)
+            {
+                machineMessage = $"Entered incorrect product code";
+
+            }
+            else if (tenderedAmount < kvp.Key.Price)
+            {
+                machineMessage = $"In-sufficient funds. {kvp.Key.Name} cost {kvp.Key.Price} dollars";
+            }
+            else if (kvp.Value < 1)
+            {
+                machineMessage = $"Apologies, {kvp.Key.Name} is presently out of stock";
+            }
+            else if (kvp.Key.Code == code && kvp.Key.Price <= tenderedAmount && kvp.Value > 0)
+            {
+                Inventory[kvp.Key]--;
+                customerChange = tenderedAmount - kvp.Key.Price;
+                machineMessage = $"Vending machine dispenses {kvp.Key.Name}. You also have a change of {customerChange}, please wait";               
+                tenderChange(customerChange);
+            }          
+
+        }
+
+        return machineMessage;
+    }
+
+    public string tenderChange(int change)
+    {
+        int amountToDispense = change;
+
+        foreach(KeyValuePair<int, int> kvp in CashDrawer.AvailableCash) 
+        { 
+            //needs more work
+            if (kvp.Key > change)
+            {
+                //need to review this to incorporate the dispense cash method on the CashDrawer class
+                CashDrawer.AvailableCash[kvp.Key]--;          
+                
+                amountToDispense =- kvp.Key;
+                Console.WriteLine($"Dispenses {kvp.Key} dollars ");
+            }
+        }
+        return $" Transaction complete, Thanks for stopping by";
+    }
 }
 
 class CashDrawer
 {
-    public Dictionary<int, int> availableCash { get; set; } = new Dictionary<int, int>();
+    public Dictionary<int, int> AvailableCash { get; set; } = new Dictionary<int, int>();
 
-    public void addCash(int bill, int number)
+    public void addCash(int bill, int numOfBill)
     {
-        availableCash.Add(bill, number);
-
-        Console.WriteLine("{0} {1} dollar bills added to Cash Drawer", number, bill);
+        AvailableCash.Add(bill, numOfBill);
     }
 
+   
     public void dispenseCash(int bill, int number)
     {
-        availableCash[bill] =- number;
+        AvailableCash[bill] =- number;
 
-        Console.WriteLine("{0} {1} dollar bills dispensed", number, bill);
     }
 }
 
-class MachineInventory
+
+class Product
 {
+    public string Name { get; set; }
+    public int Price { get; set; }
+
+    public int Code { get; set; }
+
+    public Product(string name , int price, int code)
+    {
+        Name = name;
+        Price = price;
+        Code = code;
+    }
 
 }
