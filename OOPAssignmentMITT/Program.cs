@@ -101,6 +101,10 @@ static class ArmourList
 }
 class Fight
 {
+    public Hero FightHero { get; set; }
+    public Monster FightMonster { get; set; }
+    public bool Win { get; set; } = false;
+    public bool lose { get; set; } = false;
 
 }
 
