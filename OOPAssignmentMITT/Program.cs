@@ -1,16 +1,4 @@
-﻿Console.WriteLine("Hi, please enter player name");
-string playerName = Console.ReadLine();
-Console.WriteLine($"Welcome {playerName}");
-Console.WriteLine("Main Menu");
-Console.WriteLine("To display Game Statistic enter 'a' \nTo display Inventory enter 'b' \nTo Fight press 'c'");
-
-char userFirstCommand = Console.ReadKey().KeyChar;
-
-//if (userFirstCommand == 'a')
-
-
-
-Armour Voodoo = new Armour("Voodoo", 5);
+﻿Armour Voodoo = new Armour("Voodoo", 5);
 Armour RunAway = new Armour("Run Away", 9);
 Armour BodyArmour = new Armour("Body Armour", 6);
 
@@ -25,6 +13,72 @@ Weapon Shotgun = new Weapon("ShotGun", 7);
 WeaponList.Weapons.Add(BattleAxe);
 WeaponList.Weapons.Add(AK47);
 WeaponList.Weapons.Add(Shotgun);
+
+Monster RottenTeeth = new Monster("Rotten Teeth", 8, 5, 50);
+Game.Monster = RottenTeeth;
+
+
+Console.WriteLine("Hi, please enter player name");
+string playerName = Console.ReadLine();
+Console.WriteLine($"Welcome {playerName}");
+Console.WriteLine("Main Menu");
+Console.WriteLine("To display Game Statistic enter 'a' \nTo display Inventory enter 'b' \nTo Fight press 'c'");
+
+char initiateGameCommand = Console.ReadKey().KeyChar;
+Console.WriteLine("Choose your Weapon");
+
+Console.WriteLine("For Battle Axe press 'a' \nFor AK-47 press 'b' \nFor Shotgun press 'c'");
+char weaponChoice = Console.ReadKey().KeyChar;
+
+Console.WriteLine("Choose your Armour");
+Console.WriteLine("For VooDoo press 'a' \nFor Body Armour press 'b' \nTo try and evade press 'c'");
+
+
+char armourChoice = Console.ReadKey().KeyChar;
+
+Hero Hero = new Hero($"{playerName}", 4, 3, 30); 
+
+if (weaponChoice == 'a')
+{
+    Hero.EquippedWeapon = BattleAxe;
+
+}
+else if (weaponChoice == 'b')
+{
+    Hero.EquippedWeapon = AK47;
+
+}
+else if (weaponChoice == 'c')
+{
+    Hero.EquippedWeapon = Shotgun;
+
+}
+
+if (armourChoice == 'a')
+{
+    Hero.EquippedArmour = Voodoo;
+}
+else if (armourChoice == 'b')
+{
+    Hero.EquippedArmour = BodyArmour;
+
+}
+else if (armourChoice == 'c')
+{
+    Hero.EquippedArmour = RunAway;
+
+}
+
+Game.Hero = Hero;
+
+if (initiateGameCommand == 'c')
+{
+    Game.PlayGame();
+}
+
+
+
+
 
 
 class Hero
@@ -101,15 +155,71 @@ static class ArmourList
 }
 class Fight
 {
-    public Hero FightHero { get; set; }
-    public Monster FightMonster { get; set; }
+    public Hero Hero { get; set; }
+    public Monster Monster { get; set; }
     public bool Win { get; set; } = false;
-    public bool lose { get; set; } = false;
+    public bool Lose { get; set; } = false;
 
 }
 
-class Game
+static class Game
 {
+    public  static Hero Hero { get; set; }
+    public static Monster Monster { get; set; }
+    public static Fight Fight = new Fight();
+
+    public static void PlayGame()
+    {
+        int heroAttack;
+        int heroDefense;
+        int heroHealth;
+
+        heroAttack = Hero.BaseStrength + Hero.EquippedWeapon.Power;
+        heroDefense = Hero.BaseDefense + Hero.EquippedArmour.Power;
+        heroHealth = Hero.CurrentHealth;
+
+        int monsterAttack;
+        int monsterDefense;
+        int monsterHealth;
+
+        monsterAttack = Monster.Strength;
+        monsterDefense = Monster.Defense;
+        monsterHealth = Monster.CurrentHealth;
+
+
+        // to review this to fix endless loop bug
+        while (Fight.Win != true|| Fight.Lose != true)
+        {
+            monsterHealth = - (heroAttack - monsterDefense);
+            Console.WriteLine($"{Hero.Name} attacks {Monster.Name}");
+            if (monsterHealth <= 0)
+            {
+                Fight.Win = true;
+            }
+
+            heroHealth =- (monsterAttack - heroDefense);
+            Console.WriteLine($"{Monster.Name} attacks {Hero.Name}");
+            if (heroHealth <= 0)
+            {
+                Fight.Lose = true;
+            }
+
+
+
+        }
+
+        if (Fight.Win)
+        {
+            Console.WriteLine($"{Hero.Name} wins");
+        }
+        else if (Fight.Lose)
+        {
+            Console.WriteLine($"{Hero.Name} loses");
+        }
+
+            
+    }
+
 
 }
 
